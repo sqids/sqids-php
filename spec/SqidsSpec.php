@@ -12,4 +12,10 @@ class SqidsSpec extends ObjectBehavior
         $this->shouldThrow(new \InvalidArgumentException('Alphabet must contain at least 5 unique characters.'))
             ->during('__construct', ['abcd']);
     }
+
+    function it_trow_exception_when_alphabet_has_not_only_unique_characters()
+    {
+        $this->shouldThrow(new \InvalidArgumentException('Alphabet must contain only unique characters.'))
+            ->during('__construct', ['aabcdefg']);
+    }
 }
