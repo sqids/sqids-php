@@ -7,8 +7,9 @@ use Sqids\Sqids;
 
 class SqidsSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    function it_throw_exception_when_alphabet_is_too_short()
     {
-        $this->shouldHaveType(Sqids::class);
+        $this->shouldThrow(new \InvalidArgumentException('Alphabet must contain at least 5 unique characters.'))
+            ->during('__construct', ['abcd']);
     }
 }
