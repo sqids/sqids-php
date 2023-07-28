@@ -1,0 +1,4 @@
+suites:
+  sqids_suite:
+    namespace: Sqids
+    psr4_prefix: Sqids

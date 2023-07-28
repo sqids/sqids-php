@@ -4,6 +4,9 @@
     "require": {
         "php": "^8.2"
     },
+    "require-dev": {
+        "phpspec/phpspec": "^7.4"
+    },
     "license": "MIT",
     "autoload": {
         "psr-4": {
