@@ -1,0 +1,20 @@
+{
+    "name": "sqids/sqids",
+    "description": "Generate YouTube-like ids from numbers",
+    "require": {
+        "php": "^8.2"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Sqids\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mathias STRASSER",
+            "email": "contact@roukmoute.fr"
+        }
+    ],
+    "minimum-stability": "stable"
+}
