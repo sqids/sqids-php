@@ -24,4 +24,11 @@ class SqidsSpec extends ObjectBehavior
         $this->beConstructedWith('abcde');
         $this->encode([])->shouldReturn('');
     }
+
+    function it_encodes_with_default_alphabet()
+    {
+        $numbers = [1, 2, 3];
+
+        $this->encode($numbers)->shouldReturn('8QRLaD');
+    }
 }
