@@ -18,4 +18,10 @@ class SqidsSpec extends ObjectBehavior
         $this->shouldThrow(new \InvalidArgumentException('Alphabet must contain only unique characters.'))
             ->during('__construct', ['aabcdefg']);
     }
+
+    function it_encodes_empty_array()
+    {
+        $this->beConstructedWith('abcde');
+        $this->encode([])->shouldReturn('');
+    }
 }
