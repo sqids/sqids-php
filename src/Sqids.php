@@ -18,6 +18,9 @@ use InvalidArgumentException;
 use RuntimeException;
 
 class Sqids implements SqidsInterface {
+	const DEFAULT_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+	const DEFAULT_MIN_LENGTH = 0;
+
     protected MathInterface $math;
 
     protected string $alphabet;
@@ -26,8 +29,8 @@ class Sqids implements SqidsInterface {
 
     /** @throws \InvalidArgumentException */
     public function __construct(
-        string $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-		int $minLength = 0,
+        string $alphabet = self::DEFAULT_ALPHABET,
+		int $minLength = self::DEFAULT_MIN_LENGTH,
 		array $blocklist = null,
 	) {
 		$this->math = $this->getMathExtension();
@@ -50,7 +53,7 @@ class Sqids implements SqidsInterface {
             $minLength > strlen($alphabet)
         ) {
             throw new InvalidArgumentException(
-                "Minimum length has to be between {self::minValue()} and {strlen($alphabet)}"
+                'Minimum length has to be between '.self::minValue().' and '.strlen($alphabet)
             );
         }
 
@@ -93,7 +96,7 @@ class Sqids implements SqidsInterface {
 		});
 		if (count($inRangeNumbers) != count($numbers)) {
 			throw new \InvalidArgumentException(
-				"Encoding supports numbers between {self::minValue()} and {self::maxValue()}"
+				'Encoding supports numbers between '.self::minValue().' and '.self::maxValue()
 			);
 		}
 

@@ -15,7 +15,7 @@ use Sqids\Sqids;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
-class SqidsTest extends TestCase
+class SqidsEncodingTest extends TestCase
 {
     public function testSimple()
     {
