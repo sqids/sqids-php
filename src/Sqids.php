@@ -33,7 +33,7 @@ class Sqids implements SqidsInterface {
 		$this->math = $this->getMathExtension();
 
 		if (!isset($blocklist)) {
-			$blocklist = json_decode(file_get_contents('blocklist.json'), true);
+			$blocklist = json_decode(file_get_contents(__DIR__.'/blocklist.json'), false);
 		}
 
         if (strlen($alphabet) < 5) {
@@ -56,14 +56,14 @@ class Sqids implements SqidsInterface {
 
         $filteredBlocklist = [];
         $alphabetChars = str_split($alphabet);
-        foreach ($blocklist as $word) {
+        foreach ((array) $blocklist as $word) {
             if (strlen($word) >= 3) {
                 $wordChars = str_split($word);
                 $intersection = array_filter($wordChars, function($c) use ($alphabetChars) {
                     return in_array($c, $alphabetChars);
                 });
                 if (count($intersection) == count($wordChars)) {
-                    $filteredBlocklist[strtolower($word)] = true;
+                    $filteredBlocklist[] = strtolower($word);
                 }
             }
         }
@@ -92,7 +92,7 @@ class Sqids implements SqidsInterface {
 			return $n >= self::minValue() && $n <= self::maxValue();
 		});
 		if (count($inRangeNumbers) != count($numbers)) {
-			throw new \Exception(
+			throw new \InvalidArgumentException(
 				"Encoding supports numbers between {self::minValue()} and {self::maxValue()}"
 			);
 		}
@@ -155,7 +155,7 @@ class Sqids implements SqidsInterface {
 		if ($this->isBlockedId($id)) {
 			if ($partitioned) {
 				if ($numbers[0] + 1 > self::maxValue()) {
-					throw new \Exception('Ran out of range checking against the blocklist');
+					throw new \RuntimeException('Ran out of range checking against the blocklist');
 				} else {
 					$numbers[0] += 1;
 				}
@@ -253,8 +253,8 @@ class Sqids implements SqidsInterface {
 
 		do {
 			array_unshift($id, $chars[$result % count($chars)]);
-			$result = $this->math->divide($result, count($chars));
-		} while ($this->math->greaterThan($result, 0));
+            $result = $this->math->divide($result, count($chars));
+        } while ($this->math->greaterThan($result, 0));
 
 		return implode('', $id);
 	}
@@ -275,7 +275,7 @@ class Sqids implements SqidsInterface {
 					if ($id == $word) {
 						return true;
 					}
-				} else if (preg_match('/\d/', $word)) {
+				} else if (preg_match('/~[0-9]+~/', $word)) {
 					if (strpos($id, $word) === 0 || strrpos($id, $word) === strlen($id) - strlen($word)) {
 						return true;
 					}
