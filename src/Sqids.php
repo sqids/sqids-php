@@ -19,32 +19,28 @@ use RuntimeException;
 
 class Sqids implements SqidsInterface
 {
-    public const DEFAULT_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    public const DEFAULT_MIN_LENGTH = 0;
+    final public const DEFAULT_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final public const DEFAULT_MIN_LENGTH = 0;
 
     protected MathInterface $math;
 
-    protected string $alphabet;
-    protected int $minLength;
-    protected array $blocklist;
-
     /** @throws \InvalidArgumentException */
     public function __construct(
-        string $alphabet = self::DEFAULT_ALPHABET,
-        int $minLength = self::DEFAULT_MIN_LENGTH,
-        array $blocklist = null,
+        protected string $alphabet = self::DEFAULT_ALPHABET,
+        protected int $minLength = self::DEFAULT_MIN_LENGTH,
+        protected array|null $blocklist = null,
     ) {
         $this->math = $this->getMathExtension();
 
         if (!isset($blocklist)) {
-            $blocklist = json_decode(file_get_contents(__DIR__.'/blocklist.json'), false);
+            $blocklist = json_decode(file_get_contents(__DIR__ . '/blocklist.json'), false, 512, JSON_THROW_ON_ERROR);
         }
 
         if (strlen($alphabet) < 5) {
             throw new InvalidArgumentException('Alphabet length must be at least 5');
         }
 
-        if (count(array_unique(str_split($alphabet))) != strlen($alphabet)) {
+        if (count(array_unique(str_split($alphabet))) !== strlen($alphabet)) {
             throw new InvalidArgumentException('Alphabet must contain unique characters');
         }
 
@@ -54,20 +50,18 @@ class Sqids implements SqidsInterface
             $minLength > strlen($alphabet)
         ) {
             throw new InvalidArgumentException(
-                'Minimum length has to be between '.self::minValue().' and '.strlen($alphabet)
+                'Minimum length has to be between ' . self::minValue() . ' and ' . strlen($alphabet)
             );
         }
 
         $filteredBlocklist = [];
         $alphabetChars = str_split($alphabet);
         foreach ((array) $blocklist as $word) {
-            if (strlen($word) >= 3) {
-                $wordChars = str_split($word);
-                $intersection = array_filter($wordChars, function ($c) use ($alphabetChars) {
-                    return in_array($c, $alphabetChars);
-                });
+            if (strlen((string) $word) >= 3) {
+                $wordChars = str_split((string) $word);
+                $intersection = array_filter($wordChars, fn($c) => in_array($c, $alphabetChars));
                 if (count($intersection) == count($wordChars)) {
-                    $filteredBlocklist[] = strtolower($word);
+                    $filteredBlocklist[] = strtolower((string) $word);
                 }
             }
         }
@@ -93,12 +87,10 @@ class Sqids implements SqidsInterface
             return '';
         }
 
-        $inRangeNumbers = array_filter($numbers, function ($n) {
-            return $n >= self::minValue() && $n <= self::maxValue();
-        });
+        $inRangeNumbers = array_filter($numbers, fn($n) => $n >= self::minValue() && $n <= self::maxValue());
         if (count($inRangeNumbers) != count($numbers)) {
             throw new \InvalidArgumentException(
-                'Encoding supports numbers between '.self::minValue().' and '.self::maxValue()
+                'Encoding supports numbers between ' . self::minValue() . ' and ' . self::maxValue()
             );
         }
 
@@ -249,7 +241,7 @@ class Sqids implements SqidsInterface
 
         for ($i = 0, $j = count($chars) - 1; $j > 0; $i++, $j--) {
             $r = ($i * $j + ord($chars[$i]) + ord($chars[$j])) % count($chars);
-            list($chars[$i], $chars[$r]) = [$chars[$r], $chars[$i]];
+            [$chars[$i], $chars[$r]] = [$chars[$r], $chars[$i]];
         }
 
         return implode('', $chars);
@@ -273,9 +265,7 @@ class Sqids implements SqidsInterface
     protected function toNumber(string $id, string $alphabet): int
     {
         $chars = str_split($alphabet);
-        return array_reduce(str_split($id), function ($a, $v) use ($chars) {
-            return $a * count($chars) + array_search($v, $chars);
-        }, 0);
+        return array_reduce(str_split($id), fn($a, $v) => $a * count($chars) + array_search($v, $chars), 0);
     }
 
     protected function isBlockedId(string $id): bool
@@ -283,16 +273,16 @@ class Sqids implements SqidsInterface
         $id = strtolower($id);
 
         foreach ($this->blocklist as $word) {
-            if (strlen($word) <= strlen($id)) {
-                if (strlen($id) <= 3 || strlen($word) <= 3) {
+            if (strlen((string) $word) <= strlen($id)) {
+                if (strlen($id) <= 3 || strlen((string) $word) <= 3) {
                     if ($id == $word) {
                         return true;
                     }
-                } elseif (preg_match('/~[0-9]+~/', $word)) {
-                    if (strpos($id, $word) === 0 || strrpos($id, $word) === strlen($id) - strlen($word)) {
+                } elseif (preg_match('/~[0-9]+~/', (string) $word)) {
+                    if (str_starts_with($id, (string) $word) || strrpos($id, (string) $word) === strlen($id) - strlen((string) $word)) {
                         return true;
                     }
-                } elseif (strpos($id, $word) !== false) {
+                } elseif (str_contains($id, (string) $word)) {
                     return true;
                 }
             }
@@ -317,5 +307,4 @@ class Sqids implements SqidsInterface
 
         throw new RuntimeException('Missing math extension for Sqids, install either bcmath or gmp.');
     }
-
 }
