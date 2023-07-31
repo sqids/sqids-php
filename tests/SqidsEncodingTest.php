@@ -28,13 +28,13 @@ class SqidsEncodingTest extends TestCase
         $this->assertSame($numbers, $sqids->decode($id));
     }
 
-    // public function testDifferentInputs()
-    // {
-    //     $sqids = new Sqids();
+    public function testDifferentInputs()
+    {
+        $sqids = new Sqids();
 
-    //     $numbers = [0, 0, 0, 1, 2, 3, 100, 1000, 100000, 1000000, $sqids->maxValue()];
-    //     $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
-    // }
+        $numbers = [0, 0, 0, 1, 2, 3, 100, 1000, 100000, 1000000, $sqids->maxValue()];
+        $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
+    }
 
     public function testIncrementalNumbers()
     {
@@ -105,14 +105,14 @@ class SqidsEncodingTest extends TestCase
         }
     }
 
-    // public function testMultiInput()
-    // {
-    //     $sqids = new Sqids();
+    public function testMultiInput()
+    {
+        $sqids = new Sqids();
 
-    //     $numbers = range(0, 99);
-    //     $output = $sqids->decode($sqids->encode($numbers));
-    //     $this->assertSame($numbers, $output);
-    // }
+        $numbers = range(0, 99);
+        $output = $sqids->decode($sqids->encode($numbers));
+        $this->assertSame($numbers, $output);
+    }
 
     public function testEncodingNoNumbers()
     {

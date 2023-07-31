@@ -17,37 +17,37 @@ use PHPUnit\Framework\TestCase;
 
 class SqidsBlocklistTest extends TestCase
 {
-    // public function testIfNoCustomBlocklistParamUseDefaultBlocklist()
-    // {
-    //     $sqids = new Sqids();
+    public function testIfNoCustomBlocklistParamUseDefaultBlocklist()
+    {
+        $sqids = new Sqids();
 
-    //     $this->assertSame([200044], $sqids->decode('sexy'));
-    //     $this->assertSame('d171vI', $sqids->encode([200044]));
-    // }
+        $this->assertSame([200044], $sqids->decode('sexy'));
+        $this->assertSame('d171vI', $sqids->encode([200044]));
+    }
 
-    // public function testIfEmptyBlocklistParamPassedDontUseAnyBlocklist()
-    // {
-    //     $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, []);
+    public function testIfEmptyBlocklistParamPassedDontUseAnyBlocklist()
+    {
+        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, []);
 
-    //     $this->assertSame([200044], $sqids->decode('sexy'));
-    //     $this->assertSame('sexy', $sqids->encode([200044]));
-    // }
+        $this->assertSame([200044], $sqids->decode('sexy'));
+        $this->assertSame('sexy', $sqids->encode([200044]));
+    }
 
-    // public function testIfNonEmptyBlocklistParamPassedUseOnlyThat()
-    // {
-    //     $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, [
-    //         'AvTg' // originally encoded [100000]
-    //     ]);
+    public function testIfNonEmptyBlocklistParamPassedUseOnlyThat()
+    {
+        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, [
+            'AvTg' // originally encoded [100000]
+        ]);
 
-    //     // Make sure we don't use the default blocklist
-    //     $this->assertSame([200044], $sqids->decode('sexy'));
-    //     $this->assertSame('sexy', $sqids->encode([200044]));
+        // Make sure we don't use the default blocklist
+        $this->assertSame([200044], $sqids->decode('sexy'));
+        $this->assertSame('sexy', $sqids->encode([200044]));
 
-    //     // Make sure we are using the passed blocklist
-    //     $this->assertSame([100000], $sqids->decode('AvTg'));
-    //     $this->assertSame('7T1X8k', $sqids->encode([100000]));
-    //     $this->assertSame([100000], $sqids->decode('7T1X8k'));
-    // }
+        // Make sure we are using the passed blocklist
+        $this->assertSame([100000], $sqids->decode('AvTg'));
+        $this->assertSame('7T1X8k', $sqids->encode([100000]));
+        $this->assertSame([100000], $sqids->decode('7T1X8k'));
+    }
 
     public function testBlocklist()
     {
@@ -74,9 +74,9 @@ class SqidsBlocklistTest extends TestCase
         $this->assertSame([1, 2, 3], $sqids->decode('LfUQh4HN'));
     }
 
-    // public function testMatchAgainstAShortBlocklistWord()
-    // {
-    //     $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, ['pPQ']);
-    //     $this->assertSame([1000], $sqids->decode($sqids->encode([1000])));
-    // }
+    public function testMatchAgainstAShortBlocklistWord()
+    {
+        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, ['pPQ']);
+        $this->assertSame([1000], $sqids->decode($sqids->encode([1000])));
+    }
 }

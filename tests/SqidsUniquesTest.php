@@ -51,36 +51,36 @@ class SqidsUniquesTest extends TestCase
         }
     }
 
-    // public function testMinLengths()
-    // {
-    //     $sqids = new Sqids();
+    public function testMinLengths()
+    {
+        $sqids = new Sqids();
 
-    //     foreach ([0, 1, 5, 10, strlen(Sqids::DEFAULT_ALPHABET)] as $minLength) {
-    //         foreach ([
-    //             [$sqids->minValue()],
-    //             [0, 0, 0, 0, 0],
-    //             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    //             [100, 200, 300],
-    //             [1_000, 2_000, 3_000],
-    //             [1_000_000],
-    //             [$sqids->maxValue()]
-    //         ] as $numbers) {
-    //             $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, $minLength);
+        foreach ([0, 1, 5, 10, strlen(Sqids::DEFAULT_ALPHABET)] as $minLength) {
+            foreach ([
+                [$sqids->minValue()],
+                [0, 0, 0, 0, 0],
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                [100, 200, 300],
+                [1_000, 2_000, 3_000],
+                [1_000_000],
+                [$sqids->maxValue()]
+            ] as $numbers) {
+                $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, $minLength);
 
-    //             $id = $sqids->encode($numbers);
-    //             $this->assertGreaterThanOrEqual($minLength, strlen($id));
-    //             $this->assertSame($numbers, $sqids->decode($id));
-    //         }
-    //     }
-    // }
+                $id = $sqids->encode($numbers);
+                $this->assertGreaterThanOrEqual($minLength, strlen($id));
+                $this->assertSame($numbers, $sqids->decode($id));
+            }
+        }
+    }
 
-    // public function testOutOfRangeInvalidMinLength()
-    // {
-    //     $this->expectException(Exception::class);
-    //     new Sqids(Sqids::DEFAULT_ALPHABET, -1);
+    public function testOutOfRangeInvalidMinLength()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new Sqids(Sqids::DEFAULT_ALPHABET, -1);
 
-    //     $this->expectException(Exception::class);
-    //     $alphabetLength = strlen(Sqids::DEFAULT_OPTIONS['alphabet']);
-    //     new Sqids(Sqids::DEFAULT_ALPHABET, strlen(Sqids::DEFAULT_ALPHABET) + 1);
-    // }
+        $this->expectException(InvalidArgumentException::class);
+        $alphabetLength = strlen(Sqids::DEFAULT_OPTIONS['alphabet']);
+        new Sqids(Sqids::DEFAULT_ALPHABET, strlen(Sqids::DEFAULT_ALPHABET) + 1);
+    }
 }

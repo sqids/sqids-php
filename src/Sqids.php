@@ -255,7 +255,7 @@ class Sqids implements SqidsInterface
         $result = $num;
 
         do {
-            array_unshift($id, $chars[$result % count($chars)]);
+            array_unshift($id, $chars[$this->math->intval($this->math->mod($result, count($chars)))]);
             $result = $this->math->divide($result, count($chars));
         } while ($this->math->greaterThan($result, 0));
 
@@ -265,7 +265,12 @@ class Sqids implements SqidsInterface
     protected function toNumber(string $id, string $alphabet): int
     {
         $chars = str_split($alphabet);
-        return array_reduce(str_split($id), fn ($a, $v) => $a * count($chars) + array_search($v, $chars), 0);
+        return $this->math->intval(array_reduce(str_split($id), function ($a, $v) use ($chars) {
+            $number = $this->math->multiply($a, count($chars));
+            $number = $this->math->add($number, array_search($v, $chars));
+
+            return $number;
+        }, 0));
     }
 
     protected function isBlockedId(string $id): bool

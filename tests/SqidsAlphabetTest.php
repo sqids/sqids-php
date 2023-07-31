@@ -28,13 +28,13 @@ class SqidsAlphabetTest extends TestCase
         $this->assertSame($numbers, $sqids->decode($id));
     }
 
-    // public function testShortAlphabet()
-    // {
-    //     $sqids = new Sqids('abcde');
+    public function testShortAlphabet()
+    {
+        $sqids = new Sqids('abcde');
 
-    //     $numbers = [1, 2, 3];
-    //     $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
-    // }
+        $numbers = [1, 2, 3];
+        $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
+    }
 
     public function testLongAlphabet()
     {
