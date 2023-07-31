@@ -27,7 +27,7 @@ class SqidsBlocklistTest extends TestCase
 
     public function testIfEmptyBlocklistParamPassedDontUseAnyBlocklist()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, []);
+        $sqids = new Sqids('', 0, []);
 
         $this->assertSame([200044], $sqids->decode('sexy'));
         $this->assertSame('sexy', $sqids->encode([200044]));
@@ -35,7 +35,7 @@ class SqidsBlocklistTest extends TestCase
 
     public function testIfNonEmptyBlocklistParamPassedUseOnlyThat()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, [
+        $sqids = new Sqids('', 0, [
             'AvTg' // originally encoded [100000]
         ]);
 
@@ -51,7 +51,7 @@ class SqidsBlocklistTest extends TestCase
 
     public function testBlocklist()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, [
+        $sqids = new Sqids('', 0, [
             '8QRLaD', // normal result of 1st encoding, let's block that word on purpose
             '7T1cd0dL', // result of 2nd encoding
             'UeIe', // result of 3rd encoding is `RA8UeIe7`, let's block a substring
@@ -65,7 +65,7 @@ class SqidsBlocklistTest extends TestCase
 
     public function testDecodingBlocklistWordsShouldStillWork()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, ['8QRLaD', '7T1cd0dL', 'RA8UeIe7', 'WM3Limhw', 'LfUQh4HN']);
+        $sqids = new Sqids('', 0, ['8QRLaD', '7T1cd0dL', 'RA8UeIe7', 'WM3Limhw', 'LfUQh4HN']);
 
         $this->assertSame([1, 2, 3], $sqids->decode('8QRLaD'));
         $this->assertSame([1, 2, 3], $sqids->decode('7T1cd0dL'));
@@ -76,7 +76,7 @@ class SqidsBlocklistTest extends TestCase
 
     public function testMatchAgainstAShortBlocklistWord()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, Sqids::DEFAULT_MIN_LENGTH, ['pPQ']);
+        $sqids = new Sqids('', 0, ['pPQ']);
         $this->assertSame([1000], $sqids->decode($sqids->encode([1000])));
     }
 }

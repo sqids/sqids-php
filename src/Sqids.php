@@ -32,32 +32,38 @@ class Sqids implements SqidsInterface
     ) {
         $this->math = $this->getMathExtension();
 
+        if ($alphabet == '') {
+            $alphabet = self::DEFAULT_ALPHABET;
+        }
+
         if (!isset($blocklist)) {
             $blocklist = json_decode(file_get_contents(__DIR__ . '/blocklist.json'), false, 512, JSON_THROW_ON_ERROR);
         }
 
-        if (strlen($alphabet) < 5) {
+        $alphabet = mb_convert_encoding($alphabet, 'UTF-8', mb_detect_encoding($alphabet));
+
+        if (mb_strlen($alphabet) < 5) {
             throw new InvalidArgumentException('Alphabet length must be at least 5');
         }
 
-        if (count(array_unique(str_split($alphabet))) !== strlen($alphabet)) {
+        if (count(array_unique(str_split($alphabet))) !== mb_strlen($alphabet)) {
             throw new InvalidArgumentException('Alphabet must contain unique characters');
         }
 
         if (
             !is_int($minLength) ||
             $minLength < self::minValue() ||
-            $minLength > strlen($alphabet)
+            $minLength > mb_strlen($alphabet)
         ) {
             throw new InvalidArgumentException(
-                'Minimum length has to be between ' . self::minValue() . ' and ' . strlen($alphabet)
+                'Minimum length has to be between ' . self::minValue() . ' and ' . mb_strlen($alphabet)
             );
         }
 
         $filteredBlocklist = [];
         $alphabetChars = str_split($alphabet);
         foreach ((array) $blocklist as $word) {
-            if (strlen((string) $word) >= 3) {
+            if (mb_strlen((string) $word) >= 3) {
                 $wordChars = str_split((string) $word);
                 $intersection = array_filter($wordChars, fn ($c) => in_array($c, $alphabetChars));
                 if (count($intersection) == count($wordChars)) {
@@ -108,20 +114,20 @@ class Sqids implements SqidsInterface
     {
         $offset = count($numbers);
         foreach ($numbers as $i => $v) {
-            $offset += ord($this->alphabet[$v % strlen($this->alphabet)]) + $i;
+            $offset += mb_ord($this->alphabet[$v % mb_strlen($this->alphabet)]) + $i;
         }
-        $offset %= strlen($this->alphabet);
+        $offset %= mb_strlen($this->alphabet);
 
-        $alphabet = substr($this->alphabet, $offset) . substr($this->alphabet, 0, $offset);
+        $alphabet = mb_substr($this->alphabet, $offset) . mb_substr($this->alphabet, 0, $offset);
         $prefix = $alphabet[0];
         $partition = $alphabet[1];
-        $alphabet = substr($alphabet, 2);
+        $alphabet = mb_substr($alphabet, 2);
         $ret = [$prefix];
 
         for ($i = 0; $i != count($numbers); $i++) {
             $num = $numbers[$i];
 
-            $alphabetWithoutSeparator = substr($alphabet, 0, -1);
+            $alphabetWithoutSeparator = mb_substr($alphabet, 0, -1);
             $ret[] = $this->toId($num, $alphabetWithoutSeparator);
 
             if ($i < count($numbers) - 1) {
@@ -139,14 +145,14 @@ class Sqids implements SqidsInterface
 
         $id = implode('', $ret);
 
-        if ($this->minLength > strlen($id)) {
+        if ($this->minLength > mb_strlen($id)) {
             if (!$partitioned) {
                 array_unshift($numbers, 0);
                 $id = $this->encodeNumbers($numbers, true);
             }
 
-            if ($this->minLength > strlen($id)) {
-                $id = $id[0] . substr($alphabet, 0, $this->minLength - strlen($id)) . substr($id, 1);
+            if ($this->minLength > mb_strlen($id)) {
+                $id = $id[0] . mb_substr($alphabet, 0, $this->minLength - mb_strlen($id)) . mb_substr($id, 1);
             }
         }
 
@@ -195,23 +201,23 @@ class Sqids implements SqidsInterface
 
         $prefix = $id[0];
         $offset = strpos($this->alphabet, $prefix);
-        $alphabet = substr($this->alphabet, $offset) . substr($this->alphabet, 0, $offset);
+        $alphabet = mb_substr($this->alphabet, $offset) . mb_substr($this->alphabet, 0, $offset);
         $partition = $alphabet[1];
-        $alphabet = substr($alphabet, 2);
-        $id = substr($id, 1);
+        $alphabet = mb_substr($alphabet, 2);
+        $id = mb_substr($id, 1);
 
         $partitionIndex = strpos($id, $partition);
-        if ($partitionIndex > 0 && $partitionIndex < strlen($id) - 1) {
-            $id = substr($id, $partitionIndex + 1);
+        if ($partitionIndex > 0 && $partitionIndex < mb_strlen($id) - 1) {
+            $id = mb_substr($id, $partitionIndex + 1);
             $alphabet = $this->shuffle($alphabet);
         }
 
-        while (strlen($id) > 0) {
+        while (mb_strlen($id) > 0) {
             $separator = $alphabet[-1];
 
             $chunks = explode($separator, $id, 2);
             if (!empty($chunks)) {
-                $alphabetWithoutSeparator = substr($alphabet, 0, -1);
+                $alphabetWithoutSeparator = mb_substr($alphabet, 0, -1);
                 $ret[] = $this->toNumber($chunks[0], $alphabetWithoutSeparator);
 
                 if (count($chunks) > 1) {
@@ -240,7 +246,7 @@ class Sqids implements SqidsInterface
         $chars = str_split($alphabet);
 
         for ($i = 0, $j = count($chars) - 1; $j > 0; $i++, $j--) {
-            $r = ($i * $j + ord($chars[$i]) + ord($chars[$j])) % count($chars);
+            $r = ($i * $j + mb_ord($chars[$i]) + mb_ord($chars[$j])) % count($chars);
             [$chars[$i], $chars[$r]] = [$chars[$r], $chars[$i]];
         }
 
@@ -278,13 +284,13 @@ class Sqids implements SqidsInterface
         $id = strtolower($id);
 
         foreach ($this->blocklist as $word) {
-            if (strlen((string) $word) <= strlen($id)) {
-                if (strlen($id) <= 3 || strlen((string) $word) <= 3) {
+            if (mb_strlen((string) $word) <= mb_strlen($id)) {
+                if (mb_strlen($id) <= 3 || mb_strlen((string) $word) <= 3) {
                     if ($id == $word) {
                         return true;
                     }
                 } elseif (preg_match('/~[0-9]+~/', (string) $word)) {
-                    if (str_starts_with($id, (string) $word) || strrpos($id, (string) $word) === strlen($id) - strlen((string) $word)) {
+                    if (str_starts_with($id, (string) $word) || strrpos($id, (string) $word) === mb_strlen($id) - mb_strlen((string) $word)) {
                         return true;
                     }
                 } elseif (str_contains($id, (string) $word)) {

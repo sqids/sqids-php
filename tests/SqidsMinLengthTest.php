@@ -19,7 +19,7 @@ class SqidsMinLengthTest extends TestCase
 {
     public function testSimple()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, strlen(Sqids::DEFAULT_ALPHABET));
+        $sqids = new Sqids('', strlen(Sqids::DEFAULT_ALPHABET));
 
         $numbers = [1, 2, 3];
         $id = '75JILToVsGerOADWmHlY38xvbaNZKQ9wdFS0B6kcMEtnRpgizhjU42qT1cd0dL';
@@ -30,7 +30,7 @@ class SqidsMinLengthTest extends TestCase
 
     public function testIncrementalNumbers()
     {
-        $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, strlen(Sqids::DEFAULT_ALPHABET));
+        $sqids = new Sqids('', strlen(Sqids::DEFAULT_ALPHABET));
 
         $ids = [
             'jf26PLNeO5WbJDUV7FmMtlGXps3CoqkHnZ8cYd19yIiTAQuvKSExzhrRghBlwf' => [0, 0],
@@ -77,9 +77,9 @@ class SqidsMinLengthTest extends TestCase
     public function testOutOfRangeInvalidMinLength()
     {
         $this->expectException(InvalidArgumentException::class);
-        new Sqids(Sqids::DEFAULT_ALPHABET, -1);
+        new Sqids('', -1);
 
         $this->expectException(InvalidArgumentException::class);
-        new Sqids(Sqids::DEFAULT_ALPHABET, strlen(Sqids::DEFAULT_ALPHABET) + 1);
+        new Sqids('', strlen(Sqids::DEFAULT_ALPHABET) + 1);
     }
 }
