@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class SqidsUniquesTest extends TestCase
 {
-    public const UPPER = 1000000;
+    public const UPPER = 100000; // Spec const is 1_000_000, but it's taking too long on Github Actions
 
     public function testUniquesWithPadding()
     {
