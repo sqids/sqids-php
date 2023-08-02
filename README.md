@@ -4,8 +4,6 @@
 [![Monthly Downloads](https://badgen.net/packagist/dm/sqids/sqids)](https://packagist.org/packages/sqids/sqids/stats)
 [![Latest Version](https://badgen.net/packagist/v/sqids/sqids)](https://packagist.org/packages/sqids/sqids)
 
-> 🚧 This is a work in progress and not ready for production yet.
-
 Sqids (pronounced "squids") is a small library that lets you generate YouTube-looking IDs from numbers. It's good for link shortening, fast & URL-safe ID generation and decoding back into numbers for quicker database lookups.
 
 ## Getting started
