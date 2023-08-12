@@ -132,6 +132,12 @@ class SqidsEncodingTest extends TestCase
         $this->assertSame([], $sqids->decode('*'));
     }
 
+    public function testDecodingAnInvalidIdWithARepeatingReservedCharacter()
+    {
+        $sqids = new Sqids();
+        $this->assertSame([], $sqids->decode('fff'));
+    }
+
     public function testEncodeOutOfRangeNumbers()
     {
         $this->expectException(InvalidArgumentException::class);

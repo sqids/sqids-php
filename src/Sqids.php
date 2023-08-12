@@ -774,6 +774,11 @@ class Sqids implements SqidsInterface
             $chunks = explode($separator, $id, 2);
             if (!empty($chunks)) {
                 $alphabetWithoutSeparator = substr($alphabet, 0, -1);
+                for ($i = 0; $i < strlen($chunks[0]); $i++) {
+                    if (strpos($alphabetWithoutSeparator, $chunks[0][$i]) === false) {
+                        return [];
+                    }
+                }
                 $ret[] = $this->toNumber($chunks[0], $alphabetWithoutSeparator);
 
                 if (count($chunks) > 1) {

@@ -13,8 +13,7 @@
     "authors": [],
     "homepage": "https://sqids.org/php",
     "require": {
-        "php": "^8.2",
-        "ext-mbstring": "*"
+        "php": "^8.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0"
