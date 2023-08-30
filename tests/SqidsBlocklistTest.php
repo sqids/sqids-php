@@ -79,4 +79,16 @@ class SqidsBlocklistTest extends TestCase
         $sqids = new Sqids('', 0, ['pPQ']);
         $this->assertSame([1000], $sqids->decode($sqids->encode([1000])));
     }
+
+    public function testBlocklistFilteringInConstructor()
+    {
+        // lowercase blocklist in only-uppercase alphabet
+        $sqids = new Sqids('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0, ['sqnmpn']);
+
+        $id = $sqids->encode([1, 2, 3]);
+        $numbers = $sqids->decode($id);
+
+        $this->assertSame($id, 'ULPBZGBM'); // without blocklist, would've been "SQNMPN"
+        $this->assertSame($numbers, [1, 2, 3]);
+    }
 }

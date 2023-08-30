@@ -617,13 +617,14 @@ class Sqids implements SqidsInterface
         }
 
         $filteredBlocklist = [];
-        $alphabetChars = str_split($alphabet);
+        $alphabetChars = str_split(strtolower($alphabet));
         foreach ((array) $blocklist as $word) {
             if (strlen((string) $word) >= 3) {
-                $wordChars = str_split((string) $word);
+                $wordLowercased = strtolower($word);
+                $wordChars = str_split((string) $wordLowercased);
                 $intersection = array_filter($wordChars, fn ($c) => in_array($c, $alphabetChars));
                 if (count($intersection) == count($wordChars)) {
-                    $filteredBlocklist[] = strtolower((string) $word);
+                    $filteredBlocklist[] = strtolower((string) $wordLowercased);
                 }
             }
         }
