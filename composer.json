@@ -4,6 +4,7 @@
     "license": "MIT",
     "keywords": [
         "sqids",
+        "hashids",
         "generate",
         "encode",
         "decode",

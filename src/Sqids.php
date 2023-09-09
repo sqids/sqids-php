@@ -598,21 +598,26 @@ class Sqids implements SqidsInterface
             $alphabet = self::DEFAULT_ALPHABET;
         }
 
-        if (strlen($alphabet) < 5) {
-            throw new InvalidArgumentException('Alphabet length must be at least 5');
+        if (mb_strlen($alphabet) != strlen($alphabet)) {
+            throw new InvalidArgumentException('Alphabet cannot contain multibyte characters');
+        }
+
+        if (strlen($alphabet) < 3) {
+            throw new InvalidArgumentException('Alphabet length must be at least 3');
         }
 
         if (count(array_unique(str_split($alphabet))) !== strlen($alphabet)) {
             throw new InvalidArgumentException('Alphabet must contain unique characters');
         }
 
+        $minLengthLimit = 255;
         if (
             !is_int($minLength) ||
-            $minLength < self::minValue() ||
-            $minLength > strlen($alphabet)
+            $minLength < 0 ||
+            $minLength > $minLengthLimit
         ) {
             throw new InvalidArgumentException(
-                'Minimum length has to be between ' . self::minValue() . ' and ' . strlen($alphabet)
+                'Minimum length has to be between 0 and ' . $minLengthLimit
             );
         }
 
@@ -638,8 +643,8 @@ class Sqids implements SqidsInterface
      * Encodes an array of unsigned integers into an ID
      *
      * These are the cases where encoding might fail:
-     * - One of the numbers passed is smaller than `minValue()` or greater than `maxValue()`
-     * - A partition number is incremented so much that it becomes greater than `maxValue()`
+     * - One of the numbers passed is smaller than 0 or greater than `maxValue()`
+     * - An n-number of attempts has been made to re-generated the ID, where n is alphabet length + 1
      *
      * @param array<int> $numbers Non-negative integers to encode into an ID
      * @return string Generated ID
@@ -650,52 +655,47 @@ class Sqids implements SqidsInterface
             return '';
         }
 
-        $inRangeNumbers = array_filter($numbers, fn ($n) => $n >= self::minValue() && $n <= self::maxValue());
+        $inRangeNumbers = array_filter($numbers, fn ($n) => $n >= 0 && $n <= self::maxValue());
         if (count($inRangeNumbers) != count($numbers)) {
-            throw new \InvalidArgumentException(
-                'Encoding supports numbers between ' . self::minValue() . ' and ' . self::maxValue()
+            throw new InvalidArgumentException(
+                'Encoding supports numbers between 0 and ' . self::maxValue()
             );
         }
 
-        return $this->encodeNumbers($numbers, false);
+        return $this->encodeNumbers($numbers);
     }
 
     /**
      * Internal function that encodes an array of unsigned integers into an ID
      *
      * @param array<int> $numbers Non-negative integers to encode into an ID
-     * @param bool $partitioned If true, the first number is always a throwaway number (used either for blocklist or padding)
+     * @param int $increment An internal number used to modify the `offset` variable in order to re-generate the ID
      * @return string Generated ID
      */
-    protected function encodeNumbers(array $numbers, bool $partitioned = false): string
+    protected function encodeNumbers(array $numbers, int $increment = 0): string
     {
+        if ($increment > strlen($this->alphabet)) {
+            throw new InvalidArgumentException('Reached max attempts to re-generate the ID');
+        }
+
         $offset = count($numbers);
         foreach ($numbers as $i => $v) {
             $offset += ord($this->alphabet[$v % strlen($this->alphabet)]) + $i;
         }
         $offset %= strlen($this->alphabet);
+        $offset = ($offset + $increment) % strlen($this->alphabet);
 
         $alphabet = substr($this->alphabet, $offset) . substr($this->alphabet, 0, $offset);
         $prefix = $alphabet[0];
-        $partition = $alphabet[1];
-        $alphabet = substr($alphabet, 2);
+        $alphabet = strrev($alphabet);
         $ret = [$prefix];
 
         for ($i = 0; $i != count($numbers); $i++) {
             $num = $numbers[$i];
 
-            $alphabetWithoutSeparator = substr($alphabet, 0, -1);
-            $ret[] = $this->toId($num, $alphabetWithoutSeparator);
-
+            $ret[] = $this->toId($num, substr($alphabet, 1));
             if ($i < count($numbers) - 1) {
-                $separator = $alphabet[-1];
-
-                if ($partitioned && $i == 0) {
-                    $ret[] = $partition;
-                } else {
-                    $ret[] = $separator;
-                }
-
+                $ret[] = $alphabet[0];
                 $alphabet = $this->shuffle($alphabet);
             }
         }
@@ -703,28 +703,16 @@ class Sqids implements SqidsInterface
         $id = implode('', $ret);
 
         if ($this->minLength > strlen($id)) {
-            if (!$partitioned) {
-                array_unshift($numbers, 0);
-                $id = $this->encodeNumbers($numbers, true);
-            }
+            $id .= $alphabet[0];
 
-            if ($this->minLength > strlen($id)) {
-                $id = $id[0] . substr($alphabet, 0, $this->minLength - strlen($id)) . substr($id, 1);
+            while ($this->minLength - strlen($id) > 0) {
+                $alphabet = $this->shuffle($alphabet);
+                $id .= substr($alphabet, 0, min($this->minLength - strlen($id), strlen($alphabet)));
             }
         }
 
         if ($this->isBlockedId($id)) {
-            if ($partitioned) {
-                if ($numbers[0] + 1 > self::maxValue()) {
-                    throw new \RuntimeException('Ran out of range checking against the blocklist');
-                } else {
-                    $numbers[0] += 1;
-                }
-            } else {
-                array_unshift($numbers, 0);
-            }
-
-            $id = $this->encodeNumbers($numbers, true);
+            $id = $this->encodeNumbers($numbers, $increment + 1);
         }
 
         return $id;
@@ -735,7 +723,6 @@ class Sqids implements SqidsInterface
      *
      * These are the cases where the return value might be an empty array:
      * - Empty ID / empty string
-     * - Invalid ID passed (reserved character is in the wrong place)
      * - Non-alphabet character is found within the ID
      *
      * @param string $id Encoded ID
@@ -759,29 +746,19 @@ class Sqids implements SqidsInterface
         $prefix = $id[0];
         $offset = strpos($this->alphabet, $prefix);
         $alphabet = substr($this->alphabet, $offset) . substr($this->alphabet, 0, $offset);
-        $partition = $alphabet[1];
-        $alphabet = substr($alphabet, 2);
+        $alphabet = strrev($alphabet);
         $id = substr($id, 1);
 
-        $partitionIndex = strpos($id, $partition);
-        if ($partitionIndex > 0 && $partitionIndex < strlen($id) - 1) {
-            $id = substr($id, $partitionIndex + 1);
-            $alphabet = $this->shuffle($alphabet);
-        }
-
         while (strlen($id) > 0) {
-            $separator = $alphabet[-1];
+            $separator = $alphabet[0];
 
             $chunks = explode($separator, $id, 2);
             if (!empty($chunks)) {
-                $alphabetWithoutSeparator = substr($alphabet, 0, -1);
-                for ($i = 0; $i < strlen($chunks[0]); $i++) {
-                    if (strpos($alphabetWithoutSeparator, $chunks[0][$i]) === false) {
-                        return [];
-                    }
+                if ($chunks[0] == '') {
+                    return $ret;
                 }
-                $ret[] = $this->toNumber($chunks[0], $alphabetWithoutSeparator);
 
+                $ret[] = $this->toNumber($chunks[0], substr($alphabet, 1));
                 if (count($chunks) > 1) {
                     $alphabet = $this->shuffle($alphabet);
                 }
@@ -791,16 +768,6 @@ class Sqids implements SqidsInterface
         }
 
         return $ret;
-    }
-
-    public static function minValue(): int
-    {
-        return 0;
-    }
-
-    public static function maxValue(): int
-    {
-        return PHP_INT_MAX;
     }
 
     protected function shuffle(string $alphabet): string
@@ -862,6 +829,11 @@ class Sqids implements SqidsInterface
         }
 
         return false;
+    }
+
+    protected static function maxValue(): int
+    {
+        return PHP_INT_MAX;
     }
 
     /**

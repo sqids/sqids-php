@@ -26,10 +26,4 @@ interface SqidsInterface
      * @return array<int>
      */
     public function decode(string $id): array;
-
-    /** Get the smallest supported integer that's possible to encode. */
-    public static function minValue(): int;
-
-    /** Get the largest supported integer that's possible to encode. */
-    public static function maxValue(): int;
 }

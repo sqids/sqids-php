@@ -53,34 +53,34 @@ Simple encode & decode:
 
 ```php
 $sqids = new Sqids();
-$id = $sqids->encode([1, 2, 3]); // "8QRLaD"
+$id = $sqids->encode([1, 2, 3]); // "86Rf07"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
 
 > **Note**
 > 🚧 Because of the algorithm's design, **multiple IDs can decode back into the same sequence of numbers**. If it's important to your design that IDs are canonical, you have to manually re-encode decoded numbers and check that the generated ID matches.
 
-Randomize IDs by providing a custom alphabet:
-
-```php
-$sqids = new Sqids('FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE');
-$id = $sqids->encode([1, 2, 3]); // "B5aMa3"
-$numbers = $sqids->decode($id); // [1, 2, 3]
-```
-
 Enforce a *minimum* length for IDs:
 
 ```php
 $sqids = new Sqids('', 10);
-$id = $sqids->encode([1, 2, 3]); // "75JT1cd0dL"
+$id = $sqids->encode([1, 2, 3]); // "86Rf07xd4z"
+$numbers = $sqids->decode($id); // [1, 2, 3]
+```
+
+Randomize IDs by providing a custom alphabet:
+
+```php
+$sqids = new Sqids('FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE');
+$id = $sqids->encode([1, 2, 3]); // "B4aajs"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
 
 Prevent specific words from appearing anywhere in the auto-generated IDs:
 
 ```php
-$sqids = new Sqids('', 10, ['word1', 'word2']);
-$id = $sqids->encode([1, 2, 3]); // "8QRLaD"
+$sqids = new Sqids('', 0, ['86Rf07']);
+$id = $sqids->encode([1, 2, 3]); // "se8ojk"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
 

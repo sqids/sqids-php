@@ -22,7 +22,7 @@ class SqidsAlphabetTest extends TestCase
         $sqids = new Sqids('0123456789abcdef');
 
         $numbers = [1, 2, 3];
-        $id = '4d9fd2';
+        $id = '489158';
 
         $this->assertSame($id, $sqids->encode($numbers));
         $this->assertSame($numbers, $sqids->decode($id));
@@ -30,7 +30,7 @@ class SqidsAlphabetTest extends TestCase
 
     public function testShortAlphabet()
     {
-        $sqids = new Sqids('abcde');
+        $sqids = new Sqids('abc');
 
         $numbers = [1, 2, 3];
         $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
@@ -44,6 +44,12 @@ class SqidsAlphabetTest extends TestCase
         $this->assertSame($numbers, $sqids->decode($sqids->encode($numbers)));
     }
 
+    public function testMultibyteCharacters()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new Sqids('ë1092');
+    }
+
     public function testRepeatingAlphabetCharacters()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -53,6 +59,6 @@ class SqidsAlphabetTest extends TestCase
     public function testTooShortAlphabet()
     {
         $this->expectException(InvalidArgumentException::class);
-        new Sqids('abcd');
+        new Sqids('ab');
     }
 }
