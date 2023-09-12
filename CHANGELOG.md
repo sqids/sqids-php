@@ -1,5 +1,9 @@
 # CHANGELOG
 
+**v0.4.1:**
+- Removed testing for `uniques` ([part of the spec](https://github.com/sqids/sqids-spec/blob/main/tests/internal/uniques.test.ts))
+- Support for PHP 8.1 [[PR #8](https://github.com/sqids/sqids-php/pull/8)]
+
 **v0.4.0:** **⚠️ BREAKING CHANGE**
 - **Breaking change**: IDs change. Algorithm has been fine-tuned for better performance [[Issue #11](https://github.com/sqids/sqids-spec/issues/11)]
 - `alphabet` cannot contain multibyte characters
