@@ -63,7 +63,7 @@ $numbers = $sqids->decode($id); // [1, 2, 3]
 Enforce a *minimum* length for IDs:
 
 ```php
-$sqids = new Sqids('', 10);
+$sqids = new Sqids(minLength: 10);
 $id = $sqids->encode([1, 2, 3]); // "86Rf07xd4z"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
@@ -71,7 +71,7 @@ $numbers = $sqids->decode($id); // [1, 2, 3]
 Randomize IDs by providing a custom alphabet:
 
 ```php
-$sqids = new Sqids('FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE');
+$sqids = new Sqids(alphabet: 'FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE');
 $id = $sqids->encode([1, 2, 3]); // "B4aajs"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
@@ -79,7 +79,7 @@ $numbers = $sqids->decode($id); // [1, 2, 3]
 Prevent specific words from appearing anywhere in the auto-generated IDs:
 
 ```php
-$sqids = new Sqids('', 0, ['86Rf07']);
+$sqids = new Sqids(blocklist: ['86Rf07']);
 $id = $sqids->encode([1, 2, 3]); // "se8ojk"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
