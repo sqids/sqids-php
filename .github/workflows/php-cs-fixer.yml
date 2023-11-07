@@ -3,7 +3,7 @@ name: PHP-CS-Fixer
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
