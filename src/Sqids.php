@@ -627,7 +627,7 @@ class Sqids implements SqidsInterface
             if (strlen((string) $word) >= 3) {
                 $wordLowercased = strtolower($word);
                 $wordChars = str_split((string) $wordLowercased);
-                $intersection = array_filter($wordChars, fn ($c) => in_array($c, $alphabetChars));
+                $intersection = array_filter($wordChars, fn($c) => in_array($c, $alphabetChars));
                 if (count($intersection) == count($wordChars)) {
                     $filteredBlocklist[] = strtolower((string) $wordLowercased);
                 }
@@ -655,7 +655,7 @@ class Sqids implements SqidsInterface
             return '';
         }
 
-        $inRangeNumbers = array_filter($numbers, fn ($n) => $n >= 0 && $n <= self::maxValue());
+        $inRangeNumbers = array_filter($numbers, fn($n) => $n >= 0 && $n <= self::maxValue());
         if (count($inRangeNumbers) != count($numbers)) {
             throw new InvalidArgumentException(
                 'Encoding supports numbers between 0 and ' . self::maxValue()
