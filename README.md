@@ -44,7 +44,7 @@ use Sqids\Sqids;
 $sqids = new Sqids();
 ```
 
-> **Note**
+> [!NOTE]
 > Sqids require either [`bcmath`](https://secure.php.net/manual/en/book.bc.php) or [`gmp`](https://secure.php.net/manual/en/book.gmp.php) extension in order to work.
 
 ## 👩‍💻 Examples
@@ -57,7 +57,7 @@ $id = $sqids->encode([1, 2, 3]); // "86Rf07"
 $numbers = $sqids->decode($id); // [1, 2, 3]
 ```
 
-> **Note**
+> [!NOTE]
 > 🚧 Because of the algorithm's design, **multiple IDs can decode back into the same sequence of numbers**. If it's important to your design that IDs are canonical, you have to manually re-encode decoded numbers and check that the generated ID matches.
 
 Enforce a *minimum* length for IDs:
