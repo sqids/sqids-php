@@ -44,8 +44,8 @@ use Sqids\Sqids;
 $sqids = new Sqids();
 ```
 
-> [!NOTE]
-> Sqids require either [`bcmath`](https://secure.php.net/manual/en/book.bc.php) or [`gmp`](https://secure.php.net/manual/en/book.gmp.php) extension in order to work.
+> [!IMPORTANT]
+> Sqids require either the [`bcmath`](https://secure.php.net/manual/en/book.bc.php) or [`gmp`](https://secure.php.net/manual/en/book.gmp.php) extension in order to work.
 
 ## 👩‍💻 Examples
 
