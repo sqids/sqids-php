@@ -581,7 +581,7 @@ class Sqids implements SqidsInterface
         "zocc01a",
         "zocc0la",
         "zocco1a",
-        "zoccola"
+        "zoccola",
     ];
 
     protected MathInterface $math;
@@ -617,7 +617,7 @@ class Sqids implements SqidsInterface
             $minLength > $minLengthLimit
         ) {
             throw new InvalidArgumentException(
-                'Minimum length has to be between 0 and ' . $minLengthLimit
+                'Minimum length has to be between 0 and ' . $minLengthLimit,
             );
         }
 
@@ -658,7 +658,7 @@ class Sqids implements SqidsInterface
         $inRangeNumbers = array_filter($numbers, fn($n) => $n >= 0 && $n <= self::maxValue());
         if (count($inRangeNumbers) != count($numbers)) {
             throw new InvalidArgumentException(
-                'Encoding supports numbers between 0 and ' . self::maxValue()
+                'Encoding supports numbers between 0 and ' . self::maxValue(),
             );
         }
 

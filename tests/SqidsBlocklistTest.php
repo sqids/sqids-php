@@ -36,7 +36,7 @@ class SqidsBlocklistTest extends TestCase
     public function testIfNonEmptyBlocklistParamPassedUseOnlyThat()
     {
         $sqids = new Sqids('', 0, [
-            'ArUO' // originally encoded [100000]
+            'ArUO', // originally encoded [100000]
         ]);
 
         // Make sure we don't use the default blocklist

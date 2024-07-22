@@ -50,7 +50,7 @@ class SqidsEncodingTest extends TestCase
             'OI' => [6],
             'AX' => [7],
             'p6' => [8],
-            'nJ' => [9]
+            'nJ' => [9],
         ];
 
         foreach ($ids as $id => $numbers) {
@@ -73,7 +73,7 @@ class SqidsEncodingTest extends TestCase
             'uY2M' => [0, 6],
             '74dI' => [0, 7],
             '30WX' => [0, 8],
-            'moxr' => [0, 9]
+            'moxr' => [0, 9],
         ];
 
         foreach ($ids as $id => $numbers) {
@@ -96,7 +96,7 @@ class SqidsEncodingTest extends TestCase
             'uf2K' => [6, 0],
             '7Cdk' => [7, 0],
             '3aWP' => [8, 0],
-            'm2xn' => [9, 0]
+            'm2xn' => [9, 0],
         ];
 
         foreach ($ids as $id => $numbers) {

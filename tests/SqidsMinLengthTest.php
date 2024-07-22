@@ -71,7 +71,7 @@ class SqidsMinLengthTest extends TestCase
             'uY2MYFqCLpgx5XQcjdtZK286AwWV7IBGEfuS9yTmbJvkzoUPeYRHr4iDs3naN0' => [0, 6],
             '74dID7X28VLQhBlnGmjZrec5wTA1fqpWtK4YkaoEIM9SRNiC3gUJH0OFvsPDdy' => [0, 7],
             '30WXpesPhgKiEI5RHTY7xbB1GnytJvXOl2p0AcUjdF6waZDo9Qk8VLzMuWrqCS' => [0, 8],
-            'moxr3HqLAK0GsTND6jowfZz3SUx7cQ8aC54Pl1RbIvFXmEJuBMYVeW9yrdOtin' => [0, 9]
+            'moxr3HqLAK0GsTND6jowfZz3SUx7cQ8aC54Pl1RbIvFXmEJuBMYVeW9yrdOtin' => [0, 9],
         ];
 
         foreach ($ids as $id => $numbers) {
@@ -92,7 +92,7 @@ class SqidsMinLengthTest extends TestCase
                 [100, 200, 300],
                 [1_000, 2_000, 3_000],
                 [1_000_000],
-                [PHP_INT_MAX]
+                [PHP_INT_MAX],
             ] as $numbers) {
                 $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, $minLength);
 
