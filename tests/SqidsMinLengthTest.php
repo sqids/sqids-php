@@ -90,8 +90,8 @@ class SqidsMinLengthTest extends TestCase
                 [0, 0, 0, 0, 0],
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 [100, 200, 300],
-                [1_000, 2_000, 3_000],
-                [1_000_000],
+                [1000, 2000, 3000],
+                [1000000],
                 [PHP_INT_MAX],
             ] as $numbers) {
                 $sqids = new Sqids(Sqids::DEFAULT_ALPHABET, $minLength);

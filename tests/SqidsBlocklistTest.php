@@ -59,8 +59,8 @@ class SqidsBlocklistTest extends TestCase
             '7tE6', // result of 4th encoding is `7tE6jdAHLe`, let's block the prefix
         ]);
 
-        $this->assertSame('1aYeB7bRUt', $sqids->encode([1_000_000, 2_000_000]));
-        $this->assertSame([1_000_000, 2_000_000], $sqids->decode('1aYeB7bRUt'));
+        $this->assertSame('1aYeB7bRUt', $sqids->encode([1000000, 2000000]));
+        $this->assertSame([1000000, 2000000], $sqids->decode('1aYeB7bRUt'));
     }
 
     public function testDecodingBlocklistWordsShouldStillWork()
