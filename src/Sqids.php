@@ -592,11 +592,13 @@ class Sqids implements SqidsInterface
 
     protected MathInterface $math;
 
+    protected ?string $blocklist = null;
+
     /** @throws \InvalidArgumentException */
     public function __construct(
         protected string $alphabet = self::DEFAULT_ALPHABET,
         protected int $minLength = self::DEFAULT_MIN_LENGTH,
-        protected array $blocklist = self::DEFAULT_BLOCKLIST,
+        array $blocklist = self::DEFAULT_BLOCKLIST,
     ) {
         $this->math = $this->getMathExtension();
 
@@ -628,8 +630,11 @@ class Sqids implements SqidsInterface
         $alphabetPattern = '/^[' . preg_quote($alphabet, '/') . ']+$/i';
         foreach ($blocklist as $word) {
             if (strlen((string) $word) >= 3 && preg_match($alphabetPattern, $word)) {
-                $filteredBlocklist[] = strtolower((string) $word);
+                $filteredBlocklist[] = preg_quote((string) $word, '/');
             }
+        }
+        if ($filteredBlocklist) {
+            $this->blocklist = '/(' . implode('|', $filteredBlocklist) . ')/i';
         }
 
         $this->alphabet = $this->shuffle($alphabet);
@@ -799,25 +804,7 @@ class Sqids implements SqidsInterface
 
     protected function isBlockedId(string $id): bool
     {
-        $id = strtolower($id);
-
-        foreach ($this->blocklist as $word) {
-            if (strlen((string) $word) <= strlen($id)) {
-                if (strlen($id) <= 3 || strlen((string) $word) <= 3) {
-                    if ($id == $word) {
-                        return true;
-                    }
-                } elseif (preg_match('/~[0-9]+~/', (string) $word)) {
-                    if (str_starts_with($id, (string) $word) || strrpos($id, (string) $word) === strlen($id) - strlen((string) $word)) {
-                        return true;
-                    }
-                } elseif (str_contains($id, (string) $word)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return $this->blocklist !== null && preg_match($this->blocklist, $id);
     }
 
     protected static function maxValue(): int
