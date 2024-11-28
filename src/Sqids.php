@@ -623,16 +623,12 @@ class Sqids implements SqidsInterface
             );
         }
 
+        // Filter out blocklist words that are shorter than 3 characters or contain non-alphabet characters
         $filteredBlocklist = [];
-        $alphabetChars = str_split(strtolower($alphabet));
-        foreach ((array) $blocklist as $word) {
-            if (strlen((string) $word) >= 3) {
-                $wordLowercased = strtolower($word);
-                $wordChars = str_split((string) $wordLowercased);
-                $intersection = array_filter($wordChars, fn($c) => in_array($c, $alphabetChars));
-                if (count($intersection) == count($wordChars)) {
-                    $filteredBlocklist[] = strtolower((string) $wordLowercased);
-                }
+        $alphabetPattern = '/^[' . preg_quote($alphabet, '/') . ']+$/i';
+        foreach ($blocklist as $word) {
+            if (strlen((string) $word) >= 3 && preg_match($alphabetPattern, $word)) {
+                $filteredBlocklist[] = strtolower((string) $word);
             }
         }
 
