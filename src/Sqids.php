@@ -17,6 +17,12 @@ use Sqids\Math\MathInterface;
 use InvalidArgumentException;
 use RuntimeException;
 
+use function strlen;
+use function ord;
+use function in_array;
+use function count;
+use function array_key_exists;
+
 class Sqids implements SqidsInterface
 {
     final public const DEFAULT_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -606,16 +612,12 @@ class Sqids implements SqidsInterface
             throw new InvalidArgumentException('Alphabet length must be at least 3');
         }
 
-        if (count(array_unique(str_split($alphabet))) !== strlen($alphabet)) {
+        if (preg_match('/(.).*\1/', $alphabet)) {
             throw new InvalidArgumentException('Alphabet must contain unique characters');
         }
 
         $minLengthLimit = 255;
-        if (
-            !is_int($minLength) ||
-            $minLength < 0 ||
-            $minLength > $minLengthLimit
-        ) {
+        if ($minLength < 0 || $minLength > $minLengthLimit) {
             throw new InvalidArgumentException(
                 'Minimum length has to be between 0 and ' . $minLengthLimit,
             );
@@ -635,7 +637,6 @@ class Sqids implements SqidsInterface
         }
 
         $this->alphabet = $this->shuffle($alphabet);
-        $this->minLength = $minLength;
         $this->blocklist = $filteredBlocklist;
     }
 
@@ -655,11 +656,12 @@ class Sqids implements SqidsInterface
             return '';
         }
 
-        $inRangeNumbers = array_filter($numbers, fn($n) => $n >= 0 && $n <= self::maxValue());
-        if (count($inRangeNumbers) != count($numbers)) {
-            throw new InvalidArgumentException(
-                'Encoding supports numbers between 0 and ' . self::maxValue(),
-            );
+        foreach ($numbers as $n) {
+            if ($n < 0 || $n > self::maxValue()) {
+                throw new InvalidArgumentException(
+                    'Encoding supports numbers between 0 and ' . self::maxValue(),
+                );
+            }
         }
 
         return $this->encodeNumbers($numbers);
@@ -688,26 +690,24 @@ class Sqids implements SqidsInterface
         $alphabet = substr($this->alphabet, $offset) . substr($this->alphabet, 0, $offset);
         $prefix = $alphabet[0];
         $alphabet = strrev($alphabet);
-        $ret = [$prefix];
+        $id = $prefix;
 
         for ($i = 0; $i != count($numbers); $i++) {
             $num = $numbers[$i];
 
-            $ret[] = $this->toId($num, substr($alphabet, 1));
+            $id .= $this->toId($num, substr($alphabet, 1));
             if ($i < count($numbers) - 1) {
-                $ret[] = $alphabet[0];
+                $id .= $alphabet[0];
                 $alphabet = $this->shuffle($alphabet);
             }
         }
-
-        $id = implode('', $ret);
 
         if ($this->minLength > strlen($id)) {
             $id .= $alphabet[0];
 
             while ($this->minLength - strlen($id) > 0) {
                 $alphabet = $this->shuffle($alphabet);
-                $id .= substr($alphabet, 0, min($this->minLength - strlen($id), strlen($alphabet)));
+                $id .= substr($alphabet, 0, min($this->minLength - strlen($id), strlen($this->alphabet)));
             }
         }
 
@@ -736,11 +736,8 @@ class Sqids implements SqidsInterface
             return $ret;
         }
 
-        $alphabetChars = str_split($this->alphabet);
-        foreach (str_split($id) as $c) {
-            if (!in_array($c, $alphabetChars)) {
-                return $ret;
-            }
+        if (!preg_match('/^[' . preg_quote($this->alphabet, '/') . ']+$/', $id)) {
+            return $ret;
         }
 
         $prefix = $id[0];
@@ -753,13 +750,13 @@ class Sqids implements SqidsInterface
             $separator = $alphabet[0];
 
             $chunks = explode($separator, $id, 2);
-            if (!empty($chunks)) {
+            if (array_key_exists(0, $chunks)) {
                 if ($chunks[0] == '') {
                     return $ret;
                 }
 
                 $ret[] = $this->toNumber($chunks[0], substr($alphabet, 1));
-                if (count($chunks) > 1) {
+                if (array_key_exists(1, $chunks)) {
                     $alphabet = $this->shuffle($alphabet);
                 }
             }
@@ -772,40 +769,36 @@ class Sqids implements SqidsInterface
 
     protected function shuffle(string $alphabet): string
     {
-        $chars = str_split($alphabet);
-
-        for ($i = 0, $j = count($chars) - 1; $j > 0; $i++, $j--) {
-            $r = ($i * $j + ord($chars[$i]) + ord($chars[$j])) % count($chars);
-            [$chars[$i], $chars[$r]] = [$chars[$r], $chars[$i]];
+        for ($i = 0, $j = strlen($alphabet) - 1; $j > 0; $i++, $j--) {
+            $r = ($i * $j + ord($alphabet[$i]) + ord($alphabet[$j])) % strlen($alphabet);
+            [$alphabet[$i], $alphabet[$r]] = [$alphabet[$r], $alphabet[$i]];
         }
 
-        return implode('', $chars);
+        return $alphabet;
     }
 
     protected function toId(int $num, string $alphabet): string
     {
-        $id = [];
-        $chars = str_split($alphabet);
-
-        $result = $num;
-
+        $id = '';
         do {
-            array_unshift($id, $chars[$this->math->intval($this->math->mod($result, count($chars)))]);
-            $result = $this->math->divide($result, count($chars));
-        } while ($this->math->greaterThan($result, 0));
+            $id = $alphabet[$this->math->intval($this->math->mod($num, strlen($alphabet)))] . $id;
+            $num = $this->math->divide($num, strlen($alphabet));
+        } while ($this->math->greaterThan($num, 0));
 
-        return implode('', $id);
+        return $id;
     }
 
     protected function toNumber(string $id, string $alphabet): int
     {
-        $chars = str_split($alphabet);
-        return $this->math->intval(array_reduce(str_split($id), function ($a, $v) use ($chars) {
-            $number = $this->math->multiply($a, count($chars));
-            $number = $this->math->add($number, array_search($v, $chars));
+        $number = 0;
+        for ($i = 0; $i < strlen($id); $i++) {
+            $number = $this->math->add(
+                $this->math->multiply($number, strlen($alphabet)),
+                strpos($alphabet, $id[$i]),
+            );
+        }
 
-            return $number;
-        }, 0));
+        return $this->math->intval($number);
     }
 
     protected function isBlockedId(string $id): bool
