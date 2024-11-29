@@ -237,13 +237,13 @@ class Sqids implements SqidsInterface
 
     protected MathInterface $math;
 
-    protected ?string $blocklist = null;
+    protected ?string $blocklistRegex = null;
 
-    /** @throws \InvalidArgumentException */
+    /** @throws InvalidArgumentException */
     public function __construct(
         protected string $alphabet = self::DEFAULT_ALPHABET,
         protected int $minLength = self::DEFAULT_MIN_LENGTH,
-        array $blocklist = self::DEFAULT_BLOCKLIST,
+        protected array $blocklist = self::DEFAULT_BLOCKLIST,
     ) {
         $this->math = $this->getMathExtension();
 
@@ -270,7 +270,6 @@ class Sqids implements SqidsInterface
             );
         }
 
-        // Filter out blocklist words that are shorter than 3 characters or contain non-alphabet characters
         $filteredBlocklist = [];
         foreach ($blocklist as $word) {
             if (strlen((string) $word) >= 3) {
@@ -278,7 +277,7 @@ class Sqids implements SqidsInterface
             }
         }
         if ($filteredBlocklist) {
-            $this->blocklist = '/(' . implode('|', $filteredBlocklist) . ')/i';
+            $this->blocklistRegex = '/(' . implode('|', $filteredBlocklist) . ')/i';
         }
 
         $this->alphabet = $this->shuffle($alphabet);
@@ -448,7 +447,7 @@ class Sqids implements SqidsInterface
 
     protected function isBlockedId(string $id): bool
     {
-        return $this->blocklist !== null && preg_match($this->blocklist, $id);
+        return $this->blocklistRegex !== null && preg_match($this->blocklistRegex, $id);
     }
 
     protected static function maxValue(): int
