@@ -811,7 +811,7 @@ class Sqids implements SqidsInterface
                     if ($id == $word) {
                         return true;
                     }
-                } elseif (preg_match('/~[0-9]+~/', (string) $word)) {
+                } elseif (preg_match('/[0-9]+/', (string) $word)) {
                     if (str_starts_with($id, (string) $word) || strrpos($id, (string) $word) === strlen($id) - strlen((string) $word)) {
                         return true;
                     }
