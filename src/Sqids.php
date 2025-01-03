@@ -25,6 +25,8 @@ use function array_key_exists;
 
 class Sqids implements SqidsInterface
 {
+    private const MIN_LENGTH_LIMIT = 255;
+
     final public const DEFAULT_ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final public const DEFAULT_MIN_LENGTH = 0;
     final public const DEFAULT_BLOCKLIST = [
@@ -237,7 +239,7 @@ class Sqids implements SqidsInterface
 
     protected MathInterface $math;
 
-    protected ?string $blocklistRegex = null;
+    protected ?string $blocklistRegex;
 
     /** @throws InvalidArgumentException */
     public function __construct(
@@ -263,25 +265,12 @@ class Sqids implements SqidsInterface
             throw new InvalidArgumentException('Alphabet must contain unique characters');
         }
 
-        $minLengthLimit = 255;
-        if ($minLength < 0 || $minLength > $minLengthLimit) {
-            throw new InvalidArgumentException(
-                'Minimum length has to be between 0 and ' . $minLengthLimit,
-            );
+        if ($minLength < 0 || $minLength > self::MIN_LENGTH_LIMIT) {
+            throw new InvalidArgumentException('Minimum length has to be between 0 and ' . self::MIN_LENGTH_LIMIT);
         }
 
-        $filteredBlocklist = [];
-        foreach ($blocklist as $word) {
-            if (strlen((string) $word) >= 3) {
-                $filteredBlocklist[] = strtr(preg_quote((string) $word, '/'), self::LEET);
-            }
-        }
-        if ($filteredBlocklist) {
-            $this->blocklistRegex = '/(' . implode('|', $filteredBlocklist) . ')/i';
-        }
-
+        $this->blocklistRegex = $this->buildBlocklistRegex();
         $this->alphabet = $this->shuffle($alphabet);
-        $this->blocklist = $filteredBlocklist;
     }
 
     /**
@@ -470,5 +459,49 @@ class Sqids implements SqidsInterface
         }
 
         throw new RuntimeException('Missing math extension for Sqids, install either bcmath or gmp.');
+    }
+
+    protected function buildBlocklistRegex(): ?string
+    {
+        $wordsMatchingExactly = [];
+        $wordsMatchingBeginningOrEnd = [];
+        $wordMatchingAnywhere = [];
+
+        foreach ($this->blocklist as $word) {
+            $word = (string) $word;
+            if (strlen($word) <= 3) {
+                $wordsMatchingExactly[] = preg_quote($word, '/');
+            } else {
+                $word = preg_quote($word, '/');
+                $leet = strtr($word, self::LEET);
+                if (!preg_match('/\d/', $word)) {
+                    $wordMatchingAnywhere[] = $word;
+                } elseif ($leet === $word) {
+                    $wordsMatchingBeginningOrEnd[] = $word;
+                }
+
+                if ($leet !== $word) {
+                    $wordsMatchingBeginningOrEnd[] = $leet;
+                }
+            }
+        }
+
+        $regexParts = [];
+        if ($wordsMatchingExactly) {
+            $regexParts[] = '^(' . implode('|', $wordsMatchingExactly) . ')$';
+        }
+        if ($wordsMatchingBeginningOrEnd) {
+            $regexParts[] = '^(' . implode('|', $wordsMatchingBeginningOrEnd) . ')';
+            $regexParts[] = '(' . implode('|', $wordsMatchingBeginningOrEnd) . ')$';
+        }
+        if ($wordMatchingAnywhere) {
+            $regexParts[] = '(' . implode('|', $wordMatchingAnywhere) . ')';
+        }
+
+        if ($regexParts) {
+            return '/(' . implode('|', $regexParts) . ')/i';
+        }
+
+        return null;
     }
 }
