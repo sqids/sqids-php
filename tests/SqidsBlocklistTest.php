@@ -106,4 +106,28 @@ class SqidsBlocklistTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $sqids->encode([0]);
     }
+
+    public function testSpecificIsBlockedIdScenarios()
+    {
+        $sqids = new Sqids('', 0, ['hey']);
+        $this->assertSame('86u', $sqids->encode([100]));
+
+        $sqids = new Sqids('', 0, ['86u']);
+        $this->assertSame('sec', $sqids->encode([100]));
+
+        $sqids = new Sqids('', 0, ['vFo']);
+        $this->assertSame('gMvFo', $sqids->encode([1000000]));
+
+        $sqids = new Sqids('', 0, ['lP3i']);
+        $this->assertSame('oDqljxrokxRt', $sqids->encode([100, 202, 303, 404]));
+
+        $sqids = new Sqids('', 0, ['1HkYs']);
+        $this->assertSame('oDqljxrokxRt', $sqids->encode([100, 202, 303, 404]));
+
+        $sqids = new Sqids('', 0, ['0hfxX']);
+        $this->assertSame('862REt0hfxXVdsLG8vGWD', $sqids->encode([101, 202, 303, 404, 505, 606, 707]));
+
+        $sqids = new Sqids('', 0, ['hfxX']);
+        $this->assertSame('seu8n1jO9C4KQQDxdOxsK', $sqids->encode([101, 202, 303, 404, 505, 606, 707]));
+    }
 }
