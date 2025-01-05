@@ -1,7 +1,7 @@
 # CHANGELOG
 
 **v0.5.0:** **⚠️ BREAKING CHANGE**
-- **Breaking change:** A bug fix in the `isBlockedId` function resolves an issue where ID regeneration was not triggered when a blocked word containing integers was found at the beginning or end of the generated ID. For example, if a blocked word was `abc1` and the generated ID was `abc123`, the ID would not have been regenerated, despite this being required according to [the spec](https://github.com/sqids/sqids-spec). Although this scenario is rare with the default blocklist, it is considered a breaking change. Since this repository is pre-1.0, only the minor version is incremented. Commit [a818ed](https://github.com/sqids/sqids-php/commit/a818ed4a25810b25663ece2354b0d6a2cc129088)
+- **Breaking change:** A bug fix in the `isBlockedId` function resolves an issue where ID regeneration was triggered when a blocked word containing integers was found in the middle of the generated ID. For example, if a blocked word was `def2` and the generated ID was `abc1def2ghi3`, the ID would have been regenerated, even though it shouldn't have been according to [the spec](https://github.com/sqids/sqids-spec). Although this scenario is rare with the default blocklist, it is considered a breaking change. Since this repository is pre-1.0, only the minor version is incremented. Commit [a818ed](https://github.com/sqids/sqids-php/commit/a818ed4a25810b25663ece2354b0d6a2cc129088)
 - Lots of performance optimizations in PR [#17](https://github.com/sqids/sqids-php/pull/17) and [#18](https://github.com/sqids/sqids-php/pull/18) thanks to [@GromNaN](https://github.com/GromNaN)
 - Running tests for PHP 8.4
 
