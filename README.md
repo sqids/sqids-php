@@ -1,8 +1,8 @@
 # [Sqids PHP](https://sqids.org/php)
 
-[![Latest Version](https://badgen.net/packagist/v/sqids/sqids)](https://packagist.org/packages/sqids/sqids)
-[![Build Status](https://badgen.net/github/checks/sqids/sqids-php?label=build&icon=github)](https://github.com/sqids/sqids-php/actions)
-[![Monthly Downloads](https://badgen.net/packagist/dm/sqids/sqids)](https://packagist.org/packages/sqids/sqids/stats)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/sqids/sqids-php/phpunit.yml?label=tests)](https://github.com/sqids/sqids/actions)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/sqids/sqids)](https://packagist.org/packages/sqids/sqids/stats)
+[![Latest Version](https://img.shields.io/packagist/v/sqids/sqids)](https://packagist.org/packages/sqids/sqids)
 
 [Sqids](https://sqids.org/php) (*pronounced "squids"*) is a small library that lets you **generate unique IDs from numbers**. It's good for link shortening, fast & URL-safe ID generation and decoding back into numbers for quicker database lookups.
 
